@@ -1,0 +1,3 @@
+mcp[cli]
+weaviate-client==4.16.7
+requests==2.32.4
