@@ -18,4 +18,4 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # EXPOSE 8000
 
 # Set default command
-CMD [ "python3", "weaviate_mcp_server.py" ]
+CMD [ "python3", "server.py" ]

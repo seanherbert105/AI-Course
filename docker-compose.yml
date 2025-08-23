@@ -32,6 +32,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    ports:
+      - "8081:8081"
     networks:
       - ai
     environment:

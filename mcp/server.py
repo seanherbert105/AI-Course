@@ -32,28 +32,32 @@ def weaviate_search(query_text: str, limit: int = 5) -> List[Dict[str, Any]]:
 
     Returns: List of objects with selected fields.
     """
-    client = weaviate.connect_to_local(
-        host="weaviate",
-        port=8080,
+    # Connect to Weaviate
+    client = weaviate.connect_to_custom(
+        http_host="weaviate",
+        http_port=8080,
+        http_secure=False,
+        grpc_host="weaviate",
         grpc_port=50051,
+        grpc_secure=False,
     )
 
     """Search Weaviate for relevant chunks."""
-    result = (
-        client.query.get("Eval", ["filename", "content"])
-        .with_near_text({"concepts": [query_text]})
-        .do()
+    collection = client.collections.get("Eval")
+    result = collection.query.near_text(
+        query=query_text,
+        limit=limit,
+        return_properties=WEAVIATE_FIELDS,
     )
 
     # Extract results robustly
     docs: List[Dict[str, Any]] = []
     try:
-        hits = result["data"]["Get"].get("Eval", [])
-        for item in hits:
-            row = {k: item.get(k) for k in WEAVIATE_FIELDS}
+        for o in result.objects:
+            row = {k: o.properties.get(k) for k in WEAVIATE_FIELDS}
             docs.append(row)
-    except Exception as exc:  # KeyError or unexpected response
-        raise RuntimeError(f"Unexpected Weaviate response: {exc}\nRaw: {json.dumps(result, indent=2)}") from exc
+    except Exception as exc:
+        return [{"error": f"Query failed: {exc}"}]
 
     return docs
 
@@ -64,7 +68,7 @@ def generate_evaluation_report(query: str) -> Dict[str, Any]:
     By default, performs a GET to {BACKEND_URL}{BACKEND_GENERATE_PATH}?{BACKEND_QUERY_PARAM}=... .
     Configure method/path/query-param via env vars.
     """
-    base = "http://app:8080".rstrip("/")
+    base = "http://app:8081".rstrip("/")
     path = BACKEND_GENERATE_PATH if BACKEND_GENERATE_PATH.startswith("/") else f"/{BACKEND_GENERATE_PATH}"
     url = f"{base}{path}"
 

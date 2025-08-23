@@ -4,7 +4,7 @@
       "command": "docker",
       "args": [
         "run",
-        "--network=ai",
+        "--network=ai-course_ai",
         "-i",
         "--rm",
         "-e", "WEAVIATE_FIELDS=filename,content",
