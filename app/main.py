@@ -8,22 +8,29 @@ import requests
 WEAVIATE_URL = os.getenv("WEAVIATE_URL", "http://weaviate:8080")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "mistral")
-CLASS_NAME = "Document"
+CLASS_NAME = "Eval"
 # ====================
 
 app = FastAPI()
 
 # Connect to Weaviate
-client = weaviate.Client(WEAVIATE_URL)
+client = weaviate.connect_to_custom(
+    http_host="weaviate",
+    http_port=8080,
+    http_secure=False,
+    grpc_host="weaviate",
+    grpc_port=50051,
+    grpc_secure=False,
+)
 
+# Confirm
+print(client.is_ready())
 
-def query_weaviate(query_text, limit=5):
+def query_weaviate(query_text):
     """Search Weaviate for relevant chunks."""
     result = (
-        client.query
-        .get(CLASS_NAME, ["filename", "content"])
+        client.query.get(CLASS_NAME, ["filename", "content"])
         .with_near_text({"concepts": [query_text]})
-        .with_limit(limit)
         .do()
     )
 
@@ -37,7 +44,7 @@ def query_weaviate(query_text, limit=5):
     return docs
 
 
-def ask_ollama(prompt):
+def ask_ollama(prompt: str):
     """Send a prompt to Ollama and get the generated text."""
     resp = requests.post(
         f"{OLLAMA_URL}/api/generate",
@@ -69,7 +76,7 @@ def generate_pdf(query: str = Query(..., description="Your query or request")):
         return {"error": "No relevant documents found."}
 
     # Step 2: Prepare RAG prompt
-    rag_prompt = f"""You are an AI assistant. Use the context below to create a detailed, coherent PDF document.
+    rag_prompt = f"""You are a military supervisor and need to complete your annual evaluations on your subordinates.
 
 Context:
 {''.join(context_docs)}

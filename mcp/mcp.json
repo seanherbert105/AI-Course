@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "eval": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--network=ai",
+        "-i",
+        "--rm",
+        "-e", "WEAVIATE_FIELDS=filename,content",
+        "-e", "BACKEND_GENERATE_PATH=/generate-pdf",
+        "-e", "BACKEND_QUERY_PARAM=query",
+        "-e", "BACKEND_METHOD=GET",
+        "-e", "REQUEST_TIMEOUT_SECONDS=60",
+        "mcp/eval"
+      ]
+    }
+  }
+}

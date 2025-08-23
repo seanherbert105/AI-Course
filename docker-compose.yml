@@ -1,7 +1,9 @@
 services:
   weaviate:
-    image: cr.weaviate.io/semitechnologies/weaviate:1.32.3
+    image: semitechnologies/weaviate:1.31.10-2900daa.amd64
     container_name: weaviate
+    networks:
+      - ai
     restart: always
     ports:
       - "8080:8080"
@@ -13,12 +15,12 @@ services:
       ENABLE_MODULES: 'text2vec-ollama,generative-ollama'
       DEFAULT_VECTORIZER_MODULE: 'text2vec-ollama'
       OLLAMA_API_ENDPOINT: 'http://ollama:11434'
-    depends_on:
-      - ollama
 
   ollama:
     image: ollama/ollama
     container_name: ollama
+    networks:
+      - ai
     restart: always
     ports:
       - "11434:11434"
@@ -30,10 +32,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    networks:
+      - ai
     environment:
       WEAVIATE_URL: "http://weaviate:8080"
       OLLAMA_URL: "http://ollama:11434"
       OLLAMA_MODEL: "mistral"
+      CLASS_NAME: "Eval"
     depends_on:
       - weaviate
       - ollama
@@ -42,3 +47,7 @@ services:
 
 volumes:
   ollama_data:
+
+networks:
+  ai: 
+    driver: bridge

@@ -1,29 +1,20 @@
-FROM docker.io/python:3.11-slim
+FROM docker.io/python:3.11
 
-# Install system dependencies for textract (.doc, .ppt parsing)
+# Install deps for fpdf + requests (lightweight, no heavy C libs needed)
 RUN apt-get update && apt-get install -y \
-    libjpeg-dev \
-    antiword \
-    unrtf \
-    poppler-utils \
-    pstotext \
-    tesseract-ocr \
-    flac \
-    ffmpeg \
-    lame \
-    libmad0 \
-    libsox-fmt-mp3 \
-    sox \
-    libjpeg-dev \
-    swig \
+        build-essential \
+        curl \
+        libpulse-dev \
+        swig \
+        wget \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
+COPY app/requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY app/ /app
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY --chmod=755 scripts/entrypoint.sh /app
 
-RUN mkdir -p /app/docs
-COPY docs /app/docs
-
-CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]
+CMD [ "/app/entrypoint.sh" ]
