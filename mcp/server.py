@@ -68,7 +68,7 @@ def generate_evaluation_report(query: str) -> Dict[str, Any]:
     By default, performs a GET to {BACKEND_URL}{BACKEND_GENERATE_PATH}?{BACKEND_QUERY_PARAM}=... .
     Configure method/path/query-param via env vars.
     """
-    base = "http://app:8081".rstrip("/")
+    base = "http://app:8000".rstrip("/")
     path = BACKEND_GENERATE_PATH if BACKEND_GENERATE_PATH.startswith("/") else f"/{BACKEND_GENERATE_PATH}"
     url = f"{base}{path}"
 

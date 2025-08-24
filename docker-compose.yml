@@ -26,6 +26,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+    command: [ "run", "gemma3:1b" ]
 
   app:
     build:
@@ -33,7 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: app
     ports:
-      - "8081:8081"
+      - "8000:8000"
     networks:
       - ai
     environment:
