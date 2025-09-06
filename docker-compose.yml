@@ -17,20 +17,19 @@ services:
       OLLAMA_API_ENDPOINT: 'http://ollama:11434'
 
   ollama:
-    image: ollama/ollama
+    build:
+      context: ./ollama
+      dockerfile: Dockerfile
     container_name: ollama
     networks:
       - ai
     restart: always
     ports:
       - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    command: [ "run", "gemma3:1b" ]
 
   app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     container_name: app
     ports:
@@ -47,9 +46,6 @@ services:
       - ollama
     volumes:
       - ./docs:/app/docs
-
-volumes:
-  ollama_data:
 
 networks:
   ai: 

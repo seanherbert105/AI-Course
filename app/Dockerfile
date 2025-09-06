@@ -11,10 +11,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY app/requirements.txt /app/
+COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ /app
-COPY --chmod=755 scripts/entrypoint.sh /app
+COPY --chmod=755 entrypoint.sh /app
 
 CMD [ "/app/entrypoint.sh" ]
